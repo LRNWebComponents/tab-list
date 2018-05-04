@@ -1,7 +1,7 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../materializecss-styles/materializecss-styles.html">
 <link rel="import" href="../hax-body-behaviors/hax-body-behaviors.html">
-<link rel="import" href="../schema-behaviors/schema-behaviors.html">
+<link rel="import" href="../paper-tabs/paper-tabs.html">
+<link rel="import" href="../paper-tabs/paper-tab.html">
 <!--
 `tab-list`
 A LRN element
@@ -19,23 +19,52 @@ A LRN element
     <style>
       :host {
         display: block;
+        margin: 0 auto;
+        list-style: none;
+        display: flex;
+        padding: 16px;
+        border-bottom: 1px solid black;
+      }
+      paper-tab a {
+        text-decoration: none;
+      }
+      paper-button {
+        text-transform: unset;
       }
     </style>
-    <h2>[[title]]</h2>
+    <paper-tabs>
+      <template is="dom-repeat" items="[[tabs]]" as="tab">
+        <paper-tab><a target="_blank" href="[[tab.link]]" tabindex="-1"><paper-button raised>[[tab.label]]</paper-button></a></paper-tab>
+      </template>
+    </paper-tabs>
   </template>
 
   <script>
     Polymer({
 
       is: 'tab-list',
-      behaviors: [HAXBehaviors.PropertiesBehaviors, MaterializeCSSBehaviors.ColorBehaviors, SchemaBehaviors.Schema],
+      behaviors: [HAXBehaviors.PropertiesBehaviors],
+      observers: [
+        '_valueChanged(tabs.*)'
+      ],
       properties: {
         /**
-         * Title
+         * List of tabs
          */
-        title: {
-          type: String,
+        tabs: {
+          type: Array,
+          value: [],
         },
+      },
+      /**
+       * Notice an array has changed and update the DOM.
+       */
+      _valueChanged: function(e) {
+        for (var i in e.base) {
+          for (var j in e.base[i]) {
+            this.notifyPath('tabs.' + i + '.' + j);
+          }
+        }
       },
       /**
        * Attached to the DOM, now fire.
@@ -43,42 +72,46 @@ A LRN element
       attached: function() {
         // Establish hax property binding
         let props = {
-          'canScale': true,
-          'canPosition': true,
+          'canScale': false,
+          'canPosition': false,
           'canEditSource': false,
           'gizmo': {
-            'title': 'Sample gizmo',
-            'description': 'The user will be able to see this for selection in a UI.',
-            'icon': 'av:play-circle-filled',
+            'title': 'Tabs',
+            'description': 'A list of links as tabs.',
+            'icon': 'icons:tab',
             'color': 'grey',
-            'groups': ['Video', 'Media'],
+            'groups': ['Presentation', 'Links'],
             'handles': [
-              {
-                'type': 'video',
-                'url': 'source'
-              }
             ],
             'meta': {
-              'author': 'Your organization on github'
+              'author': 'LRNWebComponents'
             }
           },
           'settings': {
             'quick': [
-              {
-                'property': 'title',
-                'title': 'Title',
-                'description': 'The title of the element',
-                'inputMethod': 'textfield',
-                'icon': 'editor:title',
-              },
             ],
             'configure': [
               {
-                'property': 'title',
-                'title': 'Title',
-                'description': 'The title of the element',
-                'inputMethod': 'textfield',
-                'icon': 'editor:title',
+                'property': 'tabs',
+                'title': 'Tabs',
+                'description': 'Listing of tabs',
+                'inputMethod': 'array',
+                'properties': [
+                  {
+                    'property': 'link',
+                    'title': 'Link',
+                    'description': 'link to go to',
+                    'inputMethod': 'textfield',
+                    'required': true,
+                  },
+                  {
+                    'property': 'label',
+                    'title': 'Label',
+                    'description': 'text to place on the tab',
+                    'inputMethod': 'textfield',
+                    'required': true,
+                  },
+                ]
               },
             ],
             'advanced': [
